@@ -35,23 +35,21 @@ def add_max_pool_block(model):
 
 
 def train_model(model):
-  train_datagen = ImageDataGenerator(
-        rescale=1./255,
-        shear_range=0.2,
-        zoom_range=0.2,
-        horizontal_flip=True)
+  train_datagen = ImageDataGenerator(rescale=1./255)
 
   test_datagen = ImageDataGenerator(rescale=1./255)
 
   train_generator = train_datagen.flow_from_directory(
-        'Dbs/Db1_a',  # this is the target directory
+        'Dbs/Db1/data/Db1_a',  # this is the target directory
         target_size=(256, 256),  # all images will be resized to 256x256
         batch_size=32,
-        class_mode='binary')
+        color_mode='grayscale',
+        class_mode='categorical')
   
-  model.fit_generator(
+  model.fit(
         train_generator,
-        steps_per_epoch=2000 // 32,
+        verbose=1,
+        steps_per_epoch=(880 / 32),
         epochs=50)
   
   model.save_weights('first_try.h5')
@@ -99,9 +97,9 @@ def custom_model():
   model.add(Flatten())
   model.add(Dense(320, activation='relu'))
   model.add(Dropout(0.5))
-  model.add(Dense(3, activation='softmax'))
+  model.add(Dense(100, activation='softmax'))
 
-  model.compile(loss='binary_crossentropy',
+  model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop',
               metrics=['accuracy'])
 
@@ -112,3 +110,6 @@ model = custom_model()
 model.summary()
 
 train_model(model)
+
+
+
